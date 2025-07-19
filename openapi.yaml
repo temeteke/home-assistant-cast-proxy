@@ -1,0 +1,98 @@
+openapi: 3.0.0
+info:
+  title: Home Assistant Cast Proxy API
+  version: 1.0.0
+  description: API for casting media via Home Assistant, designed to be used behind a reverse proxy.
+servers:
+  - url: /cast-proxy # Base path for the API
+    description: Main API server (expected to be behind a reverse proxy)
+paths:
+  /media-players:
+    get:
+      summary: Get Media Players
+      description: Retrieves a list of all available media player entities from Home Assistant.
+      responses:
+        '200':
+          description: A list of media player objects.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    entity_id:
+                      type: string
+                      example: media_player.living_room_display
+                    friendly_name:
+                      type: string
+                      example: リビングルームのディスプレイ
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Failed to fetch media players from Home Assistant.
+  /cast:
+    post:
+      summary: Cast Media
+      description: Casts a video to a specified media player.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - entity_id
+                - media_url
+              properties:
+                entity_id:
+                  type: string
+                  example: media_player.living_room_display
+                media_url:
+                  type: string
+                  example: http://example.com/my_video.mp4
+                media_content_type:
+                  type: string
+                  description: The type of media content to cast. Defaults to 'video'.
+                  default: video
+                  example: video
+      responses:
+        '200':
+          description: Cast command sent successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Cast command sent successfully to media_player.living_room_display
+        '400':
+          description: Bad Request (missing parameters)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: entity_id and media_url are required.
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: An error occurred while processing the cast command.
+                  details:
+                    type: string
+                    example: No response from Home Assistant
