@@ -50,6 +50,7 @@ This application is configured using environment variables.
 - `HOME_ASSISTANT_URL`: The full URL to your Home Assistant instance (e.g., `http://<your-home-assistant-ip>:8123`).
 - `HOME_ASSISTANT_TOKEN`: Your Home Assistant Long-Lived Access Token.
 - `PORT`: (Optional) The port on which the proxy server will run. Defaults to `3000`.
+- `MEDIA_PLAYER_INCLUDE_REGEX`: (Optional) A regular expression to filter media players. Only players whose `entity_id` match this regex will be returned by the `/media-players` endpoint. Example: `(media_player.living_room|media_player.bedroom)` to include players in the living room or bedroom.
 
 ## Running the Server
 

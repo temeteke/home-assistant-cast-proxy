@@ -11,6 +11,7 @@ const port = process.env.PORT || 3000;
 // Environment variables
 const HOME_ASSISTANT_URL = process.env.HOME_ASSISTANT_URL;
 const HOME_ASSISTANT_TOKEN = process.env.HOME_ASSISTANT_TOKEN;
+const MEDIA_PLAYER_INCLUDE_REGEX = process.env.MEDIA_PLAYER_INCLUDE_REGEX;
 
 if (!HOME_ASSISTANT_URL || !HOME_ASSISTANT_TOKEN) {
   console.error('HOME_ASSISTANT_URL and HOME_ASSISTANT_TOKEN must be set in .env file');
@@ -39,12 +40,19 @@ const haApi = axios.create({
 app.get('/cast-proxy/media-players', async (req, res) => {
   try {
     const response = await haApi.get('/api/states');
-    const mediaPlayers = response.data
+    let mediaPlayers = response.data
       .filter(entity => entity.entity_id.startsWith('media_player.'))
       .map(player => ({
         entity_id: player.entity_id,
         friendly_name: player.attributes.friendly_name,
       }));
+
+    if (MEDIA_PLAYER_INCLUDE_REGEX) {
+      const regex = new RegExp(MEDIA_PLAYER_INCLUDE_REGEX, 'i'); // 'i' for case-insensitive
+      mediaPlayers = mediaPlayers.filter(player =>
+        regex.test(player.entity_id)
+      );
+    }
     res.json(mediaPlayers);
   } catch (error) {
     console.error('Error fetching media players:', error.message);
